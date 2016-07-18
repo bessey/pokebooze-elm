@@ -1,13 +1,15 @@
-module Main exposing (..)
+module Main exposing (main)
 
+import Player
 import Html exposing (Html, button, div, text)
-import Html.App as Html
+import Html.App as App
+import Html.Attributes exposing (style, class)
 import Html.Events exposing (onClick)
 
 
 main =
-    Html.beginnerProgram
-        { model = model
+    App.beginnerProgram
+        { model = init 0
         , view = view
         , update = update
         }
@@ -18,12 +20,14 @@ main =
 
 
 type alias Model =
-    Int
+    { player : Player.Model
+    }
 
 
-model : Model
-model =
-    0
+init : Int -> Model
+init position =
+    { player = Player.init position
+    }
 
 
 
@@ -31,18 +35,14 @@ model =
 
 
 type Msg
-    = Increment
-    | Decrement
+    = FirstPlayer Player.Msg
 
 
 update : Msg -> Model -> Model
-update msg model =
-    case msg of
-        Increment ->
-            model + 1
-
-        Decrement ->
-            model - 1
+update message model =
+    case message of
+        FirstPlayer msg ->
+            { model | player = Player.update msg model.player }
 
 
 
@@ -51,8 +51,27 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ button [ onClick Decrement ] [ text "-" ]
-        , div [] [ text (toString model) ]
-        , button [ onClick Increment ] [ text "+" ]
+    div [ containerStyle ]
+        [ div
+            [ mapStyle ]
+            [ App.map FirstPlayer (Player.view model.player) ]
+        ]
+
+
+
+-- STYLES
+
+
+containerStyle =
+    style
+        [ ( "width", "100%" )
+        , ( "height", "100%" )
+        ]
+
+
+mapStyle =
+    style
+        [ ( "background-image", "url(/board.png)" )
+        , ( "width", "2216px" )
+        , ( "height", "2216px" )
         ]
