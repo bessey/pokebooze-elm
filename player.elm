@@ -32,10 +32,34 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Increment ->
-            ( { model | position = model.position + 1 }, Cmd.none )
+            let
+                newPosition =
+                    model.position + 1
+            in
+                ( { model
+                    | position = newPosition
+                    , style =
+                        Style.animate
+                            |> Style.to [ positionStyle newPosition ]
+                            |> Style.on model.style
+                  }
+                , Cmd.none
+                )
 
         Decrement ->
-            ( { model | position = model.position - 1 }, Cmd.none )
+            let
+                newPosition =
+                    model.position - 1
+            in
+                ( { model
+                    | position = newPosition
+                    , style =
+                        Style.animate
+                            |> Style.to [ positionStyle newPosition ]
+                            |> Style.on model.style
+                  }
+                , Cmd.none
+                )
 
         Animate time ->
             ( { model
@@ -55,7 +79,7 @@ view model =
         [ playerStyle model
         , class "player"
         ]
-        [ span [] [ text (toString model) ]
+        [ span [] [ text (toString model.position) ]
         , button [ onClick Increment ] [ text "+" ]
         ]
 
@@ -69,6 +93,7 @@ playerStyle model =
         ([ ( "background-color", "red" )
          , ( "width", "50px" )
          , ( "height", "50px" )
+         , ( "position", "absolute" )
          ]
             ++ (Style.render model.style)
         )
@@ -87,9 +112,15 @@ init : Int -> ( Model, Cmd Msg )
 init position =
     ( { position = position
       , style =
-            Style.init
-                [ Left 0.0 Px
-                ]
+            Style.init [ positionStyle position ]
       }
     , Cmd.none
     )
+
+
+positionStyle position =
+    let
+        positionFloat =
+            toFloat position
+    in
+        Left (positionFloat * 30) Px

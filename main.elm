@@ -98,4 +98,5 @@ mapStyle =
         [ ( "background-image", "url(/board.png)" )
         , ( "width", "2216px" )
         , ( "height", "2216px" )
+        , ( "position", "relative" )
         ]
