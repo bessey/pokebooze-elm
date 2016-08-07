@@ -1,10 +1,9 @@
-module Player exposing (Model, Msg, init, update, view, subscriptions)
+module Player exposing (Model, Msg(..), init, update, view)
 
 import Html exposing (Html, button, div, text, span)
 import Html.App as Html
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (style, class)
-import AnimationFrame
 import Style
 import Style.Properties exposing (..)
 
@@ -32,21 +31,19 @@ init position =
 
 
 type Msg
-    = Increment
-    | Decrement
-    | Animate Float
+    = Move Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Increment ->
+        Move positions ->
             let
                 newPosition =
-                    model.position + 1
+                    model.position + positions
             in
                 ( { model
-                    | position = newPosition
+                    | position = (Debug.log (toString newPosition) newPosition)
                     , style =
                         Style.animate
                             |> Style.to [ positionStyle newPosition ]
@@ -54,28 +51,6 @@ update msg model =
                   }
                 , Cmd.none
                 )
-
-        Decrement ->
-            let
-                newPosition =
-                    model.position - 1
-            in
-                ( { model
-                    | position = newPosition
-                    , style =
-                        Style.animate
-                            |> Style.to [ positionStyle newPosition ]
-                            |> Style.on model.style
-                  }
-                , Cmd.none
-                )
-
-        Animate time ->
-            ( { model
-                | style = Style.tick time model.style
-              }
-            , Cmd.none
-            )
 
 
 
@@ -89,7 +64,6 @@ view model =
         , class "player"
         ]
         [ span [] [ text (toString model.position) ]
-        , button [ onClick Increment ] [ text "+" ]
         ]
 
 
@@ -108,18 +82,9 @@ playerStyle model =
         )
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    AnimationFrame.times Animate
-
-
 
 -- THE REST
 
 
 positionStyle position =
-    let
-        positionFloat =
-            toFloat position
-    in
-        Left (positionFloat * 30) Px
+    Left ((toFloat position) * 10) Px

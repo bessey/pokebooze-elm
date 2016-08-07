@@ -6,6 +6,9 @@ import Html exposing (Html, button, div, text)
 import Html.App as App
 import Html.Attributes exposing (style, class)
 import Html.Events exposing (onClick)
+import AnimationFrame
+import Style
+import Style.Properties exposing (..)
 
 
 main =
@@ -51,6 +54,7 @@ init position =
 type Msg
     = FirstPlayer Player.Msg
     | Die Roller.Msg
+    | Animate Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -67,11 +71,40 @@ update msg model =
 
         Die dieMsg ->
             let
+                -- Roll the dice
                 ( roller, rollerMsg ) =
                     Roller.update dieMsg model.roller
+
+                model =
+                    { model | roller = roller }
             in
-                ( { model | roller = roller }
-                , Cmd.map Die rollerMsg
+                case dieMsg of
+                    Roller.NewFace face ->
+                        let
+                            -- Move the player accordingly
+                            ( player, playerMsg ) =
+                                Player.update (Player.Move roller.dieFace) model.player
+                        in
+                            ( { model | player = player }
+                            , Cmd.batch
+                                [ Cmd.map Die rollerMsg
+                                , Cmd.map FirstPlayer playerMsg
+                                ]
+                            )
+
+                    _ ->
+                        ( model, Cmd.map Die rollerMsg )
+
+        Animate time ->
+            let
+                firstPlayer =
+                    model.player
+            in
+                ( { model
+                    | player =
+                        { firstPlayer | style = Style.tick time firstPlayer.style }
+                  }
+                , Cmd.none
                 )
 
 
@@ -84,7 +117,8 @@ view model =
     div [ containerStyle ]
         [ div
             [ mapStyle ]
-            [ App.map Die (Roller.view model.roller)
+            [ text (toString model.roller.dieFace)
+            , App.map Die (Roller.view model.roller)
             , App.map FirstPlayer (Player.view model.player)
             ]
         ]
@@ -96,9 +130,7 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch
-        [ Sub.map FirstPlayer (Player.subscriptions model.player)
-        ]
+    AnimationFrame.times Animate
 
 
 

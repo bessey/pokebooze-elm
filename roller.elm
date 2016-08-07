@@ -1,4 +1,4 @@
-module Roller exposing (Model, Msg, update, view, init)
+module Roller exposing (Model, Msg(..), update, view, init)
 
 import Html exposing (..)
 import Html.Events exposing (onClick)
@@ -44,6 +44,5 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [] [ text (toString model.dieFace) ]
-        , button [ onClick Roll ] [ text "Roll" ]
+        [ button [ onClick Roll ] [ text "Roll" ]
         ]
