@@ -18,6 +18,15 @@ type alias Model =
     }
 
 
+init : Int -> ( Model, Cmd Msg )
+init position =
+    ( Model
+        position
+        (Style.init [ positionStyle position ])
+    , Cmd.none
+    )
+
+
 
 -- UPDATE
 
@@ -106,16 +115,6 @@ subscriptions model =
 
 
 -- THE REST
-
-
-init : Int -> ( Model, Cmd Msg )
-init position =
-    ( { position = position
-      , style =
-            Style.init [ positionStyle position ]
-      }
-    , Cmd.none
-    )
 
 
 positionStyle position =

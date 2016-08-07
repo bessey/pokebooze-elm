@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Player
+import Roller
 import Html exposing (Html, button, div, text)
 import Html.App as App
 import Html.Attributes exposing (style, class)
@@ -22,6 +23,7 @@ main =
 
 type alias Model =
     { player : Player.Model
+    , roller : Roller.Model
     }
 
 
@@ -30,10 +32,15 @@ init position =
     let
         ( p1, p1Msg ) =
             Player.init position
+
+        ( roller, rollerMsg ) =
+            Roller.init
     in
-        ( Model p1
+        ( Model p1 roller
         , Cmd.batch
-            [ Cmd.map FirstPlayer p1Msg ]
+            [ Cmd.map FirstPlayer p1Msg
+            , Cmd.map Die rollerMsg
+            ]
         )
 
 
@@ -43,6 +50,7 @@ init position =
 
 type Msg
     = FirstPlayer Player.Msg
+    | Die Roller.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -53,8 +61,17 @@ update msg model =
                 ( p1, p1Msg ) =
                     Player.update firstPlayerMsg model.player
             in
-                ( Model p1
+                ( { model | player = p1 }
                 , Cmd.map FirstPlayer p1Msg
+                )
+
+        Die dieMsg ->
+            let
+                ( roller, rollerMsg ) =
+                    Roller.update dieMsg model.roller
+            in
+                ( { model | roller = roller }
+                , Cmd.map Die rollerMsg
                 )
 
 
@@ -67,7 +84,9 @@ view model =
     div [ containerStyle ]
         [ div
             [ mapStyle ]
-            [ App.map FirstPlayer (Player.view model.player) ]
+            [ App.map Die (Roller.view model.roller)
+            , App.map FirstPlayer (Player.view model.player)
+            ]
         ]
 
 
