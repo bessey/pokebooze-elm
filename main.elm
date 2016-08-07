@@ -8,10 +8,11 @@ import Html.Events exposing (onClick)
 
 
 main =
-    App.beginnerProgram
-        { model = init 0
+    App.program
+        { init = init 0
         , view = view
         , update = update
+        , subscriptions = subscriptions
         }
 
 
@@ -24,10 +25,16 @@ type alias Model =
     }
 
 
-init : Int -> Model
+init : Int -> ( Model, Cmd Msg )
 init position =
-    { player = Player.init position
-    }
+    let
+        ( p1, p1Msg ) =
+            Player.init position
+    in
+        ( Model p1
+        , Cmd.batch
+            [ Cmd.map FirstPlayer p1Msg ]
+        )
 
 
 
@@ -38,11 +45,17 @@ type Msg
     = FirstPlayer Player.Msg
 
 
-update : Msg -> Model -> Model
-update message model =
-    case message of
-        FirstPlayer msg ->
-            { model | player = Player.update msg model.player }
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        FirstPlayer firstPlayerMsg ->
+            let
+                ( p1, p1Msg ) =
+                    Player.update firstPlayerMsg model.player
+            in
+                ( Model p1
+                , Cmd.map FirstPlayer p1Msg
+                )
 
 
 
@@ -55,6 +68,17 @@ view model =
         [ div
             [ mapStyle ]
             [ App.map FirstPlayer (Player.view model.player) ]
+        ]
+
+
+
+-- SUBS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ Sub.map FirstPlayer (Player.subscriptions model.player)
         ]
 
 
