@@ -5,7 +5,6 @@ import Roller
 import Html exposing (Html, button, div, text)
 import Html.App as App
 import Html.Attributes exposing (style, class)
-import Html.Events exposing (onClick)
 import AnimationFrame
 import Style
 import Style.Properties exposing (..)
@@ -25,25 +24,26 @@ main =
 
 
 type alias Model =
-    { player : Player.Model
+    { players : List Player.Model
     , roller : Roller.Model
+    , activePlayer : Int
     }
 
 
 init : Int -> ( Model, Cmd Msg )
 init position =
     let
-        ( p1, p1Msg ) =
-            Player.init position
+        p1 =
+            Player.init 0 position
+
+        p2 =
+            Player.init 1 position
 
         ( roller, rollerMsg ) =
             Roller.init
     in
-        ( Model p1 roller
-        , Cmd.batch
-            [ Cmd.map FirstPlayer p1Msg
-            , Cmd.map Die rollerMsg
-            ]
+        ( Model [ p1, p2 ] roller 1
+        , Cmd.map Die rollerMsg
         )
 
 
@@ -52,7 +52,7 @@ init position =
 
 
 type Msg
-    = FirstPlayer Player.Msg
+    = Players Int Player.Msg
     | Die Roller.Msg
     | Animate Float
 
@@ -60,14 +60,10 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        FirstPlayer firstPlayerMsg ->
-            let
-                ( p1, p1Msg ) =
-                    Player.update firstPlayerMsg model.player
-            in
-                ( { model | player = p1 }
-                , Cmd.map FirstPlayer p1Msg
-                )
+        Players index playerMsg ->
+            ( { model | players = List.map (updatePlayer model.activePlayer playerMsg) model.players }
+            , Cmd.none
+            )
 
         Die dieMsg ->
             let
@@ -80,32 +76,35 @@ update msg model =
             in
                 case dieMsg of
                     Roller.NewFace face ->
-                        let
-                            -- Move the player accordingly
-                            ( player, playerMsg ) =
-                                Player.update (Player.Move roller.dieFace) model.player
-                        in
-                            ( { model | player = player }
-                            , Cmd.batch
-                                [ Cmd.map Die rollerMsg
-                                , Cmd.map FirstPlayer playerMsg
-                                ]
-                            )
+                        ( { model
+                            | players = List.map (updatePlayer model.activePlayer (Player.Move face)) model.players
+                            , activePlayer = (model.activePlayer + 1) % List.length model.players
+                          }
+                        , Cmd.map Die rollerMsg
+                        )
 
                     _ ->
                         ( model, Cmd.map Die rollerMsg )
 
         Animate time ->
-            let
-                firstPlayer =
-                    model.player
-            in
-                ( { model
-                    | player =
-                        { firstPlayer | style = Style.tick time firstPlayer.style }
-                  }
-                , Cmd.none
-                )
+            ( { model
+                | players = List.map (\player -> { player | style = Style.tick time player.style }) model.players
+              }
+            , Cmd.none
+            )
+
+
+updatePlayer : Int -> Player.Msg -> Player.Model -> Player.Model
+updatePlayer targetId msg model =
+    if targetId == model.id then
+        Player.update msg model
+    else
+        model
+
+
+updatePlayerModel : Player.Model -> Player.Model
+updatePlayerModel model =
+    model
 
 
 
@@ -117,11 +116,19 @@ view model =
     div [ containerStyle ]
         [ div
             [ mapStyle ]
-            [ text (toString model.roller.dieFace)
-            , App.map Die (Roller.view model.roller)
-            , App.map FirstPlayer (Player.view model.player)
-            ]
+            ([ text (toString model.roller.dieFace)
+             , text "  "
+             , text (toString (model.activePlayer + 1))
+             , App.map Die (Roller.view model.roller)
+             ]
+                ++ List.map viewIndexedPlayer model.players
+            )
         ]
+
+
+viewIndexedPlayer : Player.Model -> Html Msg
+viewIndexedPlayer model =
+    App.map (Players model.id) (Player.view model)
 
 
 

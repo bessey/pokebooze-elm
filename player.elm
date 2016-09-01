@@ -70,14 +70,21 @@ view model =
 
 
 playerStyle model =
-    style
-        ([ ( "background-color", "red" )
-         , ( "width", "50px" )
-         , ( "height", "50px" )
-         , ( "position", "absolute" )
-         ]
-            ++ (Style.render model.style)
-        )
+    let
+        color =
+            if model.id == 0 then
+                "red"
+            else
+                "blue"
+    in
+        style
+            ([ ( "background-color", color )
+             , ( "width", "50px" )
+             , ( "height", "50px" )
+             , ( "position", "absolute" )
+             ]
+                ++ (Style.render model.style)
+            )
 
 
 
