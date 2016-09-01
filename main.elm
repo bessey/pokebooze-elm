@@ -1,15 +1,21 @@
-module Main exposing (..)
+module Main exposing (main)
 
+import Player
+import Roller
 import Html exposing (Html, button, div, text)
-import Html.App as Html
-import Html.Events exposing (onClick)
+import Html.App as App
+import Html.Attributes exposing (style, class)
+import AnimationFrame
+import Style
+import Style.Properties exposing (..)
 
 
 main =
-    Html.beginnerProgram
-        { model = model
+    App.program
+        { init = init 0
         , view = view
         , update = update
+        , subscriptions = subscriptions
         }
 
 
@@ -18,12 +24,24 @@ main =
 
 
 type alias Model =
-    Int
+    { players : List Player.Model
+    , roller : Roller.Model
+    , activePlayer : Int
+    }
 
 
-model : Model
-model =
-    0
+init : Int -> ( Model, Cmd Msg )
+init position =
+    let
+        players =
+            List.map (\x -> Player.init x position) [0..5]
+
+        ( roller, rollerMsg ) =
+            Roller.init
+    in
+        ( Model players roller 1
+        , Cmd.map Die rollerMsg
+        )
 
 
 
@@ -31,18 +49,59 @@ model =
 
 
 type Msg
-    = Increment
-    | Decrement
+    = Players Int Player.Msg
+    | Die Roller.Msg
+    | Animate Float
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Increment ->
-            model + 1
+        Players index playerMsg ->
+            ( { model | players = List.map (updatePlayer model.activePlayer playerMsg) model.players }
+            , Cmd.none
+            )
 
-        Decrement ->
-            model - 1
+        Die dieMsg ->
+            let
+                -- Roll the dice
+                ( roller, rollerMsg ) =
+                    Roller.update dieMsg model.roller
+
+                model =
+                    { model | roller = roller }
+            in
+                case dieMsg of
+                    Roller.NewFace face ->
+                        ( { model
+                            | players = List.map (updatePlayer model.activePlayer (Player.Move face)) model.players
+                            , activePlayer = (model.activePlayer + 1) % List.length model.players
+                          }
+                        , Cmd.map Die rollerMsg
+                        )
+
+                    _ ->
+                        ( model, Cmd.map Die rollerMsg )
+
+        Animate time ->
+            ( { model
+                | players = List.map (\player -> { player | style = Style.tick time player.style }) model.players
+              }
+            , Cmd.none
+            )
+
+
+updatePlayer : Int -> Player.Msg -> Player.Model -> Player.Model
+updatePlayer targetId msg model =
+    if targetId == model.id then
+        Player.update msg model
+    else
+        model
+
+
+updatePlayerModel : Player.Model -> Player.Model
+updatePlayerModel model =
+    model
 
 
 
@@ -51,8 +110,48 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ button [ onClick Decrement ] [ text "-" ]
-        , div [] [ text (toString model) ]
-        , button [ onClick Increment ] [ text "+" ]
+    div [ containerStyle ]
+        [ div
+            [ mapStyle ]
+            ([ text (toString model.roller.dieFace)
+             , text "  "
+             , text (toString (model.activePlayer + 1))
+             , App.map Die (Roller.view model.roller)
+             ]
+                ++ List.map viewIndexedPlayer model.players
+            )
+        ]
+
+
+viewIndexedPlayer : Player.Model -> Html Msg
+viewIndexedPlayer model =
+    App.map (Players model.id) (Player.view model)
+
+
+
+-- SUBS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    AnimationFrame.times Animate
+
+
+
+-- STYLES
+
+
+containerStyle =
+    style
+        [ ( "width", "100%" )
+        , ( "height", "100%" )
+        ]
+
+
+mapStyle =
+    style
+        [ ( "background-image", "url(/board.png)" )
+        , ( "width", "2216px" )
+        , ( "height", "2216px" )
+        , ( "position", "relative" )
         ]
