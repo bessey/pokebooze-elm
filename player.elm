@@ -6,6 +6,7 @@ import Html.Events exposing (onClick)
 import Html.Attributes exposing (style, class)
 import Style
 import Style.Properties exposing (..)
+import BoardLocation
 
 
 -- MODEL
@@ -23,7 +24,7 @@ init id position =
     Model
         id
         position
-        (Style.init [ positionStyle position ])
+        (Style.init (positionStyle position))
 
 
 
@@ -46,7 +47,7 @@ update msg model =
                     | position = (Debug.log (toString newPosition) newPosition)
                     , style =
                         Style.animate
-                            |> Style.to [ positionStyle newPosition ]
+                            |> Style.to (positionStyle newPosition)
                             |> Style.on model.style
                 }
 
@@ -79,6 +80,7 @@ playerStyle model =
     in
         style
             ([ ( "background-color", color )
+             , ( "color", "white" )
              , ( "width", "50px" )
              , ( "height", "50px" )
              , ( "position", "absolute" )
@@ -92,4 +94,11 @@ playerStyle model =
 
 
 positionStyle position =
-    Left ((toFloat position) * 10) Px
+    case BoardLocation.translatePosition position of
+        Just point ->
+            [ Left (toFloat point.x + 50) Px
+            , Top (toFloat point.y - 50) Px
+            ]
+
+        _ ->
+            Debug.crash "Incorrect position, shouldn't happen" Left 0.0 Px

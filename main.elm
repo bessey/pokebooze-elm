@@ -33,16 +33,13 @@ type alias Model =
 init : Int -> ( Model, Cmd Msg )
 init position =
     let
-        p1 =
-            Player.init 0 position
-
-        p2 =
-            Player.init 1 position
+        players =
+            List.map (\x -> Player.init x position) [0..5]
 
         ( roller, rollerMsg ) =
             Roller.init
     in
-        ( Model [ p1, p2 ] roller 1
+        ( Model players roller 1
         , Cmd.map Die rollerMsg
         )
 

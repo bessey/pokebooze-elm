@@ -2,6 +2,7 @@ module Roller exposing (Model, Msg(..), update, view, init)
 
 import Html exposing (..)
 import Html.Events exposing (onClick)
+import Html.Attributes exposing (style, class)
 import Random
 
 
@@ -43,6 +44,6 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ style [ ( "position", "fixed" ) ] ]
         [ button [ onClick Roll ] [ text "Roll" ]
         ]
