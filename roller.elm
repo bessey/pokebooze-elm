@@ -6,6 +6,11 @@ import Html.Attributes exposing (style, class)
 import Random
 
 
+diceSize =
+    1
+
+
+
 -- MODEL
 
 
@@ -32,7 +37,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Roll ->
-            ( model, Random.generate NewFace (Random.int 1 6) )
+            ( model, Random.generate NewFace (Random.int 1 diceSize) )
 
         NewFace newFace ->
             ( Model newFace, Cmd.none )

@@ -10,6 +10,10 @@ import Style
 import Style.Properties exposing (..)
 
 
+numberOfPlayers =
+    1
+
+
 main =
     App.program
         { init = init 0
@@ -34,7 +38,7 @@ init : Int -> ( Model, Cmd Msg )
 init position =
     let
         players =
-            List.map (\x -> Player.init x position) [0..5]
+            List.map (\x -> Player.init x position) [0..(numberOfPlayers - 1)]
 
         ( roller, rollerMsg ) =
             Roller.init

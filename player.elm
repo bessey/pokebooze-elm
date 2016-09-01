@@ -96,8 +96,8 @@ playerStyle model =
 positionStyle position =
     case BoardLocation.translatePosition position of
         Just point ->
-            [ Left (toFloat point.x + 50) Px
-            , Top (toFloat point.y - 50) Px
+            [ Left (point.x + 50.0) Px
+            , Top (point.y - 50.0) Px
             ]
 
         _ ->

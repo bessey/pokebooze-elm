@@ -4,36 +4,32 @@ import Array exposing (..)
 
 
 type alias Point =
-    { x : Int
-    , y : Int
+    { x : Float
+    , y : Float
     }
+
+
+boardXOrigin =
+    266.0
+
+
+boardYOrigin =
+    1950.0
+
+
+cellHeight =
+    187.75
+
+
+cellWidth =
+    cellHeight
 
 
 translatePosition : Int -> Maybe Point
 translatePosition position =
-    let
-        points =
-            fromList
-                [ -- UP
-                  Point 266 1950
-                , Point 266 1764
-                , Point 266 1578
-                , Point 266 1392
-                , Point 266 1206
-                , Point 266 1020
-                , Point 266 834
-                , Point 266 648
-                , Point 266 462
-                  -- ACCROSS
-                , Point 266 285
-                , Point 452 285
-                , Point 638 285
-                , Point 824 285
-                , Point 1010 285
-                , Point 1196 285
-                , Point 1382 285
-                , Point 1568 285
-                , Point 1754 285
-                ]
-    in
-        Array.get position points
+    if List.member position [0..8] then
+        Just (Point boardXOrigin (boardYOrigin - (position * cellHeight)))
+    else if List.member position [9..16] then
+        Just (Point (boardXOrigin + ((position - 8) * cellWidth)) (boardYOrigin - (8 * cellHeight)))
+    else
+        Nothing
