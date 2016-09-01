@@ -12,18 +12,18 @@ import Style.Properties exposing (..)
 
 
 type alias Model =
-    { position : Int
+    { id : Int
+    , position : Int
     , style : Style.Animation
     }
 
 
-init : Int -> ( Model, Cmd Msg )
-init position =
-    ( Model
+init : Int -> Int -> Model
+init id position =
+    Model
+        id
         position
         (Style.init [ positionStyle position ])
-    , Cmd.none
-    )
 
 
 
@@ -34,7 +34,7 @@ type Msg
     = Move Int
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         Move positions ->
@@ -42,15 +42,13 @@ update msg model =
                 newPosition =
                     model.position + positions
             in
-                ( { model
+                { model
                     | position = (Debug.log (toString newPosition) newPosition)
                     , style =
                         Style.animate
                             |> Style.to [ positionStyle newPosition ]
                             |> Style.on model.style
-                  }
-                , Cmd.none
-                )
+                }
 
 
 
