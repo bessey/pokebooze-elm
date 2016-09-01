@@ -1,6 +1,6 @@
 module BoardLocation exposing (translatePosition, Point)
 
-import Array exposing (..)
+import List exposing (foldl, take, repeat)
 
 
 type alias Point =
@@ -25,11 +25,41 @@ cellWidth =
     cellHeight
 
 
-translatePosition : Int -> Maybe Point
+cellDirections =
+    repeat 8 "↑"
+        ++ repeat 8 "→"
+        ++ repeat 8 "↓"
+        ++ repeat 7 "←"
+        ++ repeat 7 "↑"
+        ++ repeat 6 "→"
+        ++ repeat 6 "↓"
+        ++ repeat 5 "←"
+        ++ repeat 5 "↑"
+        ++ repeat 4 "→"
+        ++ repeat 4 "↓"
+        ++ repeat 3 "←"
+
+
+translatePosition : Int -> Point
 translatePosition position =
-    if List.member position [0..8] then
-        Just (Point boardXOrigin (boardYOrigin - (position * cellHeight)))
-    else if List.member position [9..16] then
-        Just (Point (boardXOrigin + ((position - 8) * cellWidth)) (boardYOrigin - (8 * cellHeight)))
-    else
-        Nothing
+    take position cellDirections
+        |> foldl addDirection (Point boardXOrigin boardYOrigin)
+
+
+addDirection : String -> Point -> Point
+addDirection nextDirection currentPosition =
+    case nextDirection of
+        "↑" ->
+            { currentPosition | y = currentPosition.y - cellHeight }
+
+        "→" ->
+            { currentPosition | x = currentPosition.x + cellWidth }
+
+        "↓" ->
+            { currentPosition | y = currentPosition.y + cellHeight }
+
+        "←" ->
+            { currentPosition | x = currentPosition.x - cellWidth }
+
+        _ ->
+            Debug.crash "what the fuck did you do" currentPosition

@@ -94,11 +94,10 @@ playerStyle model =
 
 
 positionStyle position =
-    case BoardLocation.translatePosition position of
-        Just point ->
-            [ Left (point.x + 50.0) Px
-            , Top (point.y - 50.0) Px
-            ]
-
-        _ ->
-            Debug.crash "Incorrect position, shouldn't happen" Left 0.0 Px
+    let
+        point =
+            BoardLocation.translatePosition position
+    in
+        [ Left (point.x + 50.0) Px
+        , Top (point.y - 50.0) Px
+        ]
