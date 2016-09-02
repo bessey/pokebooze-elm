@@ -2,6 +2,13 @@ body {
   font-family: system, -apple-system, BlinkMacSystemFont;
 }
 
+.roll-button {
+  position: fixed;
+  top: 40px;
+  left: 40px;
+  font-size: 1.5em;
+}
+
 .player {
   color: white;
   width: 50px;
