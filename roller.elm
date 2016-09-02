@@ -7,7 +7,7 @@ import Random
 
 
 diceSize =
-    1
+    6
 
 
 

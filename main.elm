@@ -11,7 +11,7 @@ import Style.Properties exposing (..)
 
 
 numberOfPlayers =
-    1
+    4
 
 
 main =

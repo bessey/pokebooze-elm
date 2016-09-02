@@ -6,6 +6,7 @@ import Html.Events exposing (onClick)
 import Html.Attributes exposing (style, class)
 import Style
 import Style.Properties exposing (..)
+import Time exposing (second)
 import BoardLocation
 
 
@@ -44,10 +45,10 @@ update msg model =
                     model.position + positions
             in
                 { model
-                    | position = (Debug.log (toString newPosition) newPosition)
+                    | position = newPosition
                     , style =
                         Style.animate
-                            |> Style.to (positionStyle newPosition)
+                            |> animateToNewPosition model.position newPosition
                             |> Style.on model.style
                 }
 
@@ -91,6 +92,23 @@ playerStyle model =
 
 
 -- THE REST
+
+
+animateToNewPosition position newPosition style =
+    let
+        initialStyle =
+            Style.to (positionStyle position) style
+                |> Style.andThen
+    in
+        List.foldl
+            (\position styles ->
+                styles
+                    |> Style.to (positionStyle position)
+                    |> Style.duration (0.25 * second)
+                    |> Style.andThen
+            )
+            initialStyle
+            [(position + 1)..newPosition]
 
 
 positionStyle position =
