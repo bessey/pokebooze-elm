@@ -60,34 +60,11 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div
-        [ playerStyle model
-        , class "player"
+        [ style (Style.render model.style)
+        , class ("player" ++ " player-" ++ toString (model.id + 1))
         ]
         [ span [] [ text (toString model.position) ]
         ]
-
-
-
--- STYLES
-
-
-playerStyle model =
-    let
-        color =
-            if model.id == 0 then
-                "red"
-            else
-                "blue"
-    in
-        style
-            ([ ( "background-color", color )
-             , ( "color", "white" )
-             , ( "width", "50px" )
-             , ( "height", "50px" )
-             , ( "position", "absolute" )
-             ]
-                ++ (Style.render model.style)
-            )
 
 
 
