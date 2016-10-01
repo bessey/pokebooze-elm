@@ -6,8 +6,7 @@ import Html exposing (Html, button, div, text)
 import Html.App as App
 import Html.Attributes exposing (style, class)
 import AnimationFrame
-import Style
-import Style.Properties exposing (..)
+import Animation
 
 
 numberOfPlayers =
@@ -55,7 +54,7 @@ init position =
 type Msg
     = Players Int Player.Msg
     | Die Roller.Msg
-    | Animate Float
+    | Animate Animation.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -87,12 +86,16 @@ update msg model =
                     _ ->
                         ( model, Cmd.map Die rollerMsg )
 
-        Animate time ->
-            ( { model
-                | players = List.map (\player -> { player | style = Style.tick time player.style }) model.players
-              }
-            , Cmd.none
-            )
+        Animate animMsg ->
+            let
+                players =
+                    List.map (\player -> { player | style = Animation.update animMsg player.style }) model.players
+            in
+                ( { model
+                    | players = players
+                  }
+                , Cmd.none
+                )
 
 
 updatePlayer : Int -> Player.Msg -> Player.Model -> Player.Model
@@ -136,9 +139,8 @@ viewIndexedPlayer model =
 -- SUBS
 
 
-subscriptions : Model -> Sub Msg
 subscriptions model =
-    AnimationFrame.times Animate
+    Animation.subscription Animate (List.map (\player -> player.style) model.players)
 
 
 

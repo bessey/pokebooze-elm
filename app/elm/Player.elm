@@ -4,8 +4,7 @@ import Html exposing (Html, button, div, text, span)
 import Html.App as Html
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (style, class)
-import Style
-import Style.Properties exposing (..)
+import Animation exposing (px, top, left)
 import Time exposing (second)
 import BoardLocation
 
@@ -16,7 +15,7 @@ import BoardLocation
 type alias Model =
     { id : Int
     , position : Int
-    , style : Style.Animation
+    , style : Animation.State
     }
 
 
@@ -25,7 +24,7 @@ init id position =
     Model
         id
         position
-        (Style.init (positionStyle position))
+        (Animation.style (positionStyle position))
 
 
 
@@ -46,10 +45,7 @@ update msg model =
             in
                 { model
                     | position = newPosition
-                    , style =
-                        Style.animate
-                            |> animateToNewPosition model.position newPosition
-                            |> Style.on model.style
+                    , style = animateToNewPosition model.position newPosition model.style
                 }
 
 
@@ -60,9 +56,11 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div
-        [ style (Style.render model.style)
-        , class ("player" ++ " player-" ++ toString (model.id + 1))
-        ]
+        (Animation.render
+            model.style
+            ++ [ class ("player" ++ " player-" ++ toString (model.id + 1))
+               ]
+        )
         [ span [] [ text (toString (model.id + 1)) ]
         ]
 
@@ -72,20 +70,16 @@ view model =
 
 
 animateToNewPosition position newPosition style =
-    let
-        initialStyle =
-            Style.to (positionStyle position) style
-                |> Style.andThen
-    in
-        List.foldl
-            (\position styles ->
-                styles
-                    |> Style.to (positionStyle position)
-                    |> Style.duration (0.25 * second)
-                    |> Style.andThen
+    Animation.queue
+        (List.concatMap
+            (\position ->
+                [ Animation.to (positionStyle position)
+                , Animation.wait (0.25 * second)
+                ]
             )
-            initialStyle
             [(position + 1)..newPosition]
+        )
+        style
 
 
 positionStyle position =
@@ -93,6 +87,6 @@ positionStyle position =
         point =
             BoardLocation.translatePosition position
     in
-        [ Left (point.x) Px
-        , Top (point.y - 50.0) Px
+        [ left (px point.x)
+        , top (px (point.y - 50.0))
         ]
