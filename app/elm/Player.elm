@@ -73,8 +73,13 @@ animateToNewPosition position newPosition style =
     Animation.queue
         (List.concatMap
             (\position ->
-                [ Animation.to (positionStyle position)
-                , Animation.wait (0.25 * second)
+                [ Animation.toWith
+                    (Animation.easing
+                        { duration = 0.25 * second
+                        , ease = (\x -> x ^ 1.8)
+                        }
+                    )
+                    (positionStyle position)
                 ]
             )
             [(position + 1)..newPosition]
