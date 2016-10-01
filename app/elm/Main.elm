@@ -106,11 +106,6 @@ updatePlayer targetId msg model =
         model
 
 
-updatePlayerModel : Player.Model -> Player.Model
-updatePlayerModel model =
-    model
-
-
 
 -- VIEW
 
