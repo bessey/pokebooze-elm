@@ -49,6 +49,4 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div [ style [ ( "position", "fixed" ) ] ]
-        [ button [ onClick Roll ] [ text "Roll" ]
-        ]
+        button [ class "roll-button", onClick Roll ] [ text "Roll" ]

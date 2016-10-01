@@ -63,7 +63,7 @@ view model =
         [ style (Style.render model.style)
         , class ("player" ++ " player-" ++ toString (model.id + 1))
         ]
-        [ span [] [ text (toString model.position) ]
+        [ span [] [ text (toString (model.id + 1)) ]
         ]
 
 
@@ -93,6 +93,6 @@ positionStyle position =
         point =
             BoardLocation.translatePosition position
     in
-        [ Left (point.x + 50.0) Px
+        [ Left (point.x) Px
         , Top (point.y - 50.0) Px
         ]

@@ -2,6 +2,13 @@ body {
   font-family: system, -apple-system, BlinkMacSystemFont;
 }
 
+.roll-button {
+  position: fixed;
+  top: 40px;
+  left: 40px;
+  font-size: 1.5em;
+}
+
 .player {
   color: white;
   width: 50px;
@@ -21,13 +28,13 @@ body {
   background-color: #2196F3;
 }
 .player-3 {
-  background-color: #F44336;
+  background-color: #FF9800;
 }
 .player-4 {
-  background-color: #FFEB3B;
+  background-color: #4CAF50;
 }
 .player-5 {
-  background-color: #009688;
+  background-color: #FFEB3B;
 }
 .player-6 {
   background-color: #673AB7;

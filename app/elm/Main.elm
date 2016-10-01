@@ -43,7 +43,7 @@ init position =
         ( roller, rollerMsg ) =
             Roller.init
     in
-        ( Model players roller 1
+        ( Model players roller 0
         , Cmd.map Die rollerMsg
         )
 
