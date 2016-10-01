@@ -1,41 +1,8 @@
+@import "player";
+@import "roller";
+
 body {
   font-family: system, -apple-system, BlinkMacSystemFont;
 }
 
-.roll-button {
-  position: fixed;
-  top: 40px;
-  left: 40px;
-  font-size: 1.5em;
-}
 
-.player {
-  color: white;
-  width: 50px;
-  height: 50px;
-  position: absolute;
-  border-radius: 25px;
-  text-align: center;
-  font-size: 2em;
-  background-color: black;
-}
-
-/* Colors nabbed from the Material Design color palette */
-.player-1 {
-  background-color: #E91E63;
-}
-.player-2 {
-  background-color: #2196F3;
-}
-.player-3 {
-  background-color: #FF9800;
-}
-.player-4 {
-  background-color: #4CAF50;
-}
-.player-5 {
-  background-color: #FFEB3B;
-}
-.player-6 {
-  background-color: #673AB7;
-}
