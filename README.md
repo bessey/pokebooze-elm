@@ -3,8 +3,6 @@
 
 ### Getting Started
 
-1. Install Elm
-2. `elm reactor`
-3. Go to `http://localhost:8000/index.html` for styled output
-4. Write some shitty code
-5. Go to `http://localhost:8000/main.elm` to debug
+1. Install Elm + Brunch
+2. `npm start`
+3. Go to `http://localhost:3333/`
