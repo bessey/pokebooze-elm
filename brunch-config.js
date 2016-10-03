@@ -18,6 +18,10 @@ module.exports = {
       },
       sass: {
         mode: "native"
+      },
+      closurecompiler:  {
+        compilationLevel: 'SIMPLE',
+        createSourceMap: true
       }
     }
   }
