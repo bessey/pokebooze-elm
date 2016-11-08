@@ -32,6 +32,8 @@ type alias Model =
     { players : List Player.Model
     , roller : Roller.Model
     , activePlayer : Int
+    , browserWidth : Int
+    , browserHeight : Int
     }
 
 
@@ -44,7 +46,7 @@ init position =
         ( roller, rollerMsg ) =
             Roller.init
     in
-        ( Model players roller 0
+        ( Model players roller 0 1000 500
         , Cmd.map Die rollerMsg
         )
 
@@ -121,7 +123,7 @@ view model =
         [ div []
             [ text ("Rolled: " ++ toString model.roller.dieFace)
             , text "  "
-            , text ("For: " ++ toString (model.activePlayer))
+            , text ("For: " ++ toString (model.activePlayer + 1))
             , App.map Die (Roller.view model.roller)
             ]
         , div
@@ -129,6 +131,8 @@ view model =
                 (BoardLocation.translatePosition
                     ((getPlayer (model.activePlayer - 1) model.players).position)
                 )
+                model.browserWidth
+                model.browserHeight
             ]
             (List.map viewIndexedPlayer model.players)
         ]
@@ -178,8 +182,8 @@ containerStyle =
         ]
 
 
-mapStyle : Point -> Html.Attribute a
-mapStyle activePosition =
+mapStyle : Point -> Int -> Int -> Html.Attribute a
+mapStyle activePosition browserWidth browserHeight =
     let
         x =
             activePosition.x
@@ -192,6 +196,6 @@ mapStyle activePosition =
             , ( "width", "2216px" )
             , ( "height", "2216px" )
             , ( "position", "absolute" )
-            , ( "left", toString (-x + 1000) ++ "px" )
-            , ( "top", toString (-y + 500) ++ "px" )
+            , ( "left", toString (-x + (toFloat browserWidth) / 2) ++ "px" )
+            , ( "top", toString (-y + (toFloat browserHeight) / 2) ++ "px" )
             ]
