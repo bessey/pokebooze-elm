@@ -59,7 +59,7 @@ view model =
             ++ [ class ("player" ++ " player-" ++ toString (model.id + 1))
                ]
         )
-        [ span [] [ text (toString (model.id + 1)) ]
+        [ span [] [ text (toString (model.id)) ]
         ]
 
 

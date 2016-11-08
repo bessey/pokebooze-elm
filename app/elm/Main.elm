@@ -80,7 +80,9 @@ update msg model =
                     Roller.NewFace face ->
                         ( { model
                             | players = List.map (updatePlayer model.activePlayer (Player.Move face)) model.players
-                            , activePlayer = (model.activePlayer + 1) % List.length model.players
+                            , activePlayer =
+                                (model.activePlayer + 1)
+                                    % (List.length model.players)
                           }
                         , Cmd.map Die rollerMsg
                         )
@@ -114,20 +116,21 @@ updatePlayer targetId msg model =
 
 view : Model -> Html Msg
 view model =
-    div [ containerStyle ]
-        [ div
+    div
+        [ containerStyle ]
+        [ div []
+            [ text ("Rolled: " ++ toString model.roller.dieFace)
+            , text "  "
+            , text ("For: " ++ toString (model.activePlayer))
+            , App.map Die (Roller.view model.roller)
+            ]
+        , div
             [ mapStyle
                 (BoardLocation.translatePosition
-                    ((getActivePlayer model).position)
+                    ((getPlayer (model.activePlayer - 1) model.players).position)
                 )
             ]
-            ([ text (toString model.roller.dieFace)
-             , text "  "
-             , text (toString (model.activePlayer + 1))
-             , App.map Die (Roller.view model.roller)
-             ]
-                ++ List.map viewIndexedPlayer model.players
-            )
+            (List.map viewIndexedPlayer model.players)
         ]
 
 
@@ -136,23 +139,21 @@ viewIndexedPlayer model =
     App.map (Players model.id) (Player.view model)
 
 
-getActivePlayer : Model -> Player.Model
-getActivePlayer model =
+getPlayer : Int -> List Player.Model -> Player.Model
+getPlayer playerNumber players =
     let
-        player =
-            List.tail (List.take model.activePlayer model.players)
-    in
-        case player of
-            Just player ->
-                case List.head player of
-                    Just player ->
-                        player
+        modPlayerNumber =
+            playerNumber % (List.length players)
 
-                    Nothing ->
-                        Debug.crash "no active player?!"
+        player =
+            (List.filter (\player -> modPlayerNumber == player.id) players)
+    in
+        case List.head player of
+            Just player ->
+                player
 
             Nothing ->
-                Debug.crash "no active players at all?!"
+                Debug.crash "no active player?!"
 
 
 
@@ -171,8 +172,9 @@ containerStyle : Html.Attribute a
 containerStyle =
     style
         [ ( "width", "100%" )
-        , ( "height", "100%" )
+        , ( "height", "1000px" )
         , ( "position", "relative" )
+        , ( "margin", "100px" )
         ]
 
 
@@ -190,6 +192,6 @@ mapStyle activePosition =
             , ( "width", "2216px" )
             , ( "height", "2216px" )
             , ( "position", "absolute" )
-            , ( "left", toString x ++ "px" )
-            , ( "bottom", toString y ++ "px" )
+            , ( "left", toString (-x + 1000) ++ "px" )
+            , ( "top", toString (-y + 500) ++ "px" )
             ]
