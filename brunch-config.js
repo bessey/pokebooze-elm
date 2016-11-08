@@ -14,7 +14,8 @@ module.exports = {
     plugins: {
       elmBrunch: {
         mainModules: ["app/elm/Main.elm"],
-        outputFolder: "public/js/"
+        outputFolder: "public/js/",
+        makeParameters: ['--warn']
       },
       sass: {
         mode: "native"

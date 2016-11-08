@@ -1,8 +1,6 @@
 module Player exposing (Model, Msg(..), init, update, view)
 
 import Html exposing (Html, button, div, text, span)
-import Html.App as Html
-import Html.Events exposing (onClick)
 import Html.Attributes exposing (style, class)
 import Animation exposing (px, top, left)
 import Time exposing (second)

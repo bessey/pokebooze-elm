@@ -5,14 +5,16 @@ import Roller
 import Html exposing (Html, button, div, text)
 import Html.App as App
 import Html.Attributes exposing (style, class)
-import AnimationFrame
 import Animation
+import BoardLocation exposing (Point)
 
 
+numberOfPlayers : Int
 numberOfPlayers =
     4
 
 
+main : Program Never
 main =
     App.program
         { init = init 0
@@ -114,7 +116,11 @@ view : Model -> Html Msg
 view model =
     div [ containerStyle ]
         [ div
-            [ mapStyle ]
+            [ mapStyle
+                (BoardLocation.translatePosition
+                    ((getActivePlayer model).position)
+                )
+            ]
             ([ text (toString model.roller.dieFace)
              , text "  "
              , text (toString (model.activePlayer + 1))
@@ -130,6 +136,25 @@ viewIndexedPlayer model =
     App.map (Players model.id) (Player.view model)
 
 
+getActivePlayer : Model -> Player.Model
+getActivePlayer model =
+    let
+        player =
+            List.tail (List.take model.activePlayer model.players)
+    in
+        case player of
+            Just player ->
+                case List.head player of
+                    Just player ->
+                        player
+
+                    Nothing ->
+                        Debug.crash "no active player?!"
+
+            Nothing ->
+                Debug.crash "no active players at all?!"
+
+
 
 -- SUBS
 
@@ -142,17 +167,29 @@ subscriptions model =
 -- STYLES
 
 
+containerStyle : Html.Attribute a
 containerStyle =
     style
         [ ( "width", "100%" )
         , ( "height", "100%" )
-        ]
-
-
-mapStyle =
-    style
-        [ ( "background-image", "url(/board.png)" )
-        , ( "width", "2216px" )
-        , ( "height", "2216px" )
         , ( "position", "relative" )
         ]
+
+
+mapStyle : Point -> Html.Attribute a
+mapStyle activePosition =
+    let
+        x =
+            activePosition.x
+
+        y =
+            activePosition.y
+    in
+        style
+            [ ( "background-image", "url(/board.png)" )
+            , ( "width", "2216px" )
+            , ( "height", "2216px" )
+            , ( "position", "absolute" )
+            , ( "left", toString x ++ "px" )
+            , ( "bottom", toString y ++ "px" )
+            ]
